@@ -2,16 +2,18 @@
 
 int i = 0;
 
+ArduinoESP32BLE bluetooth;
+
 void onReceiveData(const String newValue);
 
 void setup() {
   Serial.begin(115200);
-  setupBluetooth("ArduinoESP32BLE Example", onReceiveData);
+  bluetooth.setup("Example", onReceiveData);
 }
 
 void loop() {
   i += 1;
-  if (i % 5 == 0) sendBluetoothData("Hello, World! " + String(i)); 
+  if (i % 5 == 0) bluetooth.send("Hello, World! " + String(i));
   delay(1000);
 }
 
