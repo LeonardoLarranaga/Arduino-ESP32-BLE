@@ -1,5 +1,5 @@
-#ifndef ESP32BLE_H
-#define ESP32BLE_H
+#ifndef ArduinoESP32BLE_H
+#define ArduinoESP32BLE_H
 
 #include <Arduino.h>
 #include <BLEDevice.h>
@@ -25,8 +25,8 @@ public:
   BLECallback(onReceiveValueCallback callback) : onReceiveValueFunc(callback) {}
 
   void onWrite(BLECharacteristic *pCharacteristic) override {
-    const String value = pCharacteristic->getValue().c_str();
     if (onReceiveValueFunc != nullptr) {
+        const String value = pCharacteristic->getValue().c_str();
         if (verbose) Serial.println("Data received via Bluetooth: " + value);
         // Call the user-defined callback with the received value
         onReceiveValueFunc(value);
@@ -41,7 +41,7 @@ private:
 /// @param name The name of the Bluetooth service.
 /// @param callback The callback function to be called when data is received.
 /// @param verbose Whether to Serial.print debug messages (Bluetooth is setup, a message is sent/received).
-void setupBluetooth(const String name, onReceiveValueCallback callback = {}, const bool v = false) {
+void setupBluetooth(const String name, onReceiveValueCallback callback = nullptr, const bool v = false) {
   // Initialize the BLE device with the name received as a parameter
   BLEDevice::init(name.c_str());
 
