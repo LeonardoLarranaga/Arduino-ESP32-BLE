@@ -1,5 +1,5 @@
-#ifndef ArduinoESP32BLE_H
-#define ArduinoESP32BLE_H
+#ifndef ESP32BLE_H
+#define ESP32BLE_H
 
 #include <Arduino.h>
 #include <BLEDevice.h>
@@ -12,7 +12,7 @@
 #define RECEIVE_UUID "7bd70539-5e32-4b6b-91b0-50b2b5af7937"
 
 /// @brief A class for sending and receiving data over Bluetooth using the ESP32 using the Arduino framework.
-class ArduinoESP32BLE {
+class ESP32BLE {
 public:
   /// @brief Callback function type for receiving data over Bluetooth.
   typedef void (*OnReceiveValueCallback)(const String newValue);
@@ -42,7 +42,7 @@ public:
     receiveCharacteristic->addDescriptor(new BLE2902());
 
     // Set the callback for receiving data
-    receiveCharacteristic->setCallbacks(new BLECallback(callback));
+    receiveCharacteristic->setCallbacks(new BLECallback(callback, v));
 
     // Create a characteristic within the service for sending data
     sendCharacteristic = receiveService->createCharacteristic(
@@ -76,20 +76,23 @@ public:
   void send(T data){
     if (!sendCharacteristic) return;
     String sendData = String(data);
-    sendCharacteristic->setValue(sendData.c_str());
+    sendCharacteristic->setValue(data.c_str());
     sendCharacteristic->notify();
     if (verbose) Serial.println("Data sent via Bluetooth: " + sendData);
   }
 
 private:
+  BLECharacteristic *sendCharacteristic = nullptr;
+  bool verbose = false;
+
   class BLECallback : public BLECharacteristicCallbacks {
   public:
-    BLECallback(OnReceiveValueCallback callback) : callback(callback) {}
+    BLECallback(OnReceiveValueCallback callback, const bool v) : callback(callback), isVerbose(v) {}
 
     void onWrite(BLECharacteristic *pCharacteristic) override {
       if (callback) {
         const String value = pCharacteristic->getValue().c_str();
-        if (verbose) Serial.println("Data received via Bluetooth: " + value);
+        if (isVerbose) Serial.println("Data received via Bluetooth: " + value);
         // Call the user-defined callback with the received value
         callback(value);
       }
@@ -97,10 +100,8 @@ private:
 
   private:
     OnReceiveValueCallback callback;
+    const bool isVerbose;
   };
-
-  static inline BLECharacteristic *sendCharacteristic = nullptr;
-  static inline bool verbose = false;
 };
 
 #endif

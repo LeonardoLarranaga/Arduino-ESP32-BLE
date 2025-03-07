@@ -1,8 +1,8 @@
-#include "ArduinoESP32BLE.h"
+#include "ESP32BLE.h"
 
 int i = 0;
 
-ArduinoESP32BLE bluetooth;
+ESP32BLE bluetooth;
 
 void onReceiveData(const String newValue);
 
